@@ -9,9 +9,9 @@ export default function Contact() {
     console.log('Form submission started with data:', data);
     
     try {
-      const apiUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:3001/api/send-email'
-        : '/api/send-email';
+      const apiUrl = process.env.NODE_ENV === 'production'
+        ? '/api/send-email'
+        : 'http://localhost:3001/api/send-email';
 
       console.log('Sending request to:', apiUrl);
       const response = await fetch(apiUrl, {

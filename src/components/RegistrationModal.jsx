@@ -27,9 +27,9 @@ export default function RegistrationModal({ isOpen, closeModal }) {
     }
 
     try {
-      const apiUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:3001/api/register'
-        : '/api/register';
+      const apiUrl = process.env.NODE_ENV === 'production'
+        ? '/api/register'
+        : 'http://localhost:3001/api/register';
 
       console.log('Sending request to:', apiUrl);
       const response = await fetch(apiUrl, {
