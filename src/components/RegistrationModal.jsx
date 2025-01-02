@@ -27,9 +27,11 @@ export default function RegistrationModal({ isOpen, closeModal }) {
     }
 
     try {
-      const apiUrl = 'http://localhost:3001/api/register';
-      console.log('Sending request to:', apiUrl);
+      const apiUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:3001/api/register'
+        : '/api/register';
 
+      console.log('Sending request to:', apiUrl);
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {

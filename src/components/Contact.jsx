@@ -9,9 +9,9 @@ export default function Contact() {
     console.log('Form submission started with data:', data);
     
     try {
-      const apiUrl = import.meta.env.PROD 
-        ? '/api/send-email'  // Production URL
-        : 'http://localhost:3001/api/send-email';  // Development URL
+      const apiUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:3001/api/send-email'
+        : '/api/send-email';
 
       console.log('Sending request to:', apiUrl);
       const response = await fetch(apiUrl, {
@@ -31,16 +31,10 @@ export default function Contact() {
         alert('Message sent successfully!');
         reset();
       } else {
-        console.error('Server responded with error:', response.status, responseData);
-        alert(`Failed to send message: ${responseData.message || 'Unknown error'}`);
+        throw new Error(responseData.message || 'Failed to send message');
       }
     } catch (error) {
-      console.error('Caught error during submission:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
+      console.error('Submission error:', error);
       alert('An error occurred. Please try again later.');
     }
   };
