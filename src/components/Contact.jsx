@@ -1,25 +1,62 @@
 import { useForm } from 'react-hook-form';
 
+// Add your SendGrid API key here
+
 export default function Contact() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
   const onSubmit = async (data) => {
-    // Handle form submission
-    console.log(data);
+    console.log('Form submission started with data:', data);
+    
+    try {
+      const apiUrl = import.meta.env.PROD 
+        ? '/api/send-email'  // Production URL
+        : 'http://localhost:3001/api/send-email';  // Development URL
+
+      console.log('Sending request to:', apiUrl);
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      console.log('Response received:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
+      if (response.ok) {
+        console.log('Email sent successfully');
+        alert('Message sent successfully!');
+        reset();
+      } else {
+        console.error('Server responded with error:', response.status, responseData);
+        alert(`Failed to send message: ${responseData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Caught error during submission:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      alert('An error occurred. Please try again later.');
+    }
   };
 
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Contact Us</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Na Kontaktoni</h2>
           <p className="mt-2 text-lg leading-8 text-gray-600">
-            We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+          Do të na pëlqente të dëgjojmë nga ju. Dërgoni një mesazh dhe do t'ju përgjigjemi sa më shpejt të jetë e mundur.
           </p>
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                Name
+                Emri
               </label>
               <input
                 type="text"
@@ -32,7 +69,7 @@ export default function Contact() {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email
+                Email-i
               </label>
               <input
                 type="email"
@@ -45,7 +82,7 @@ export default function Contact() {
 
             <div>
               <label htmlFor="message" className="block text-sm font-medium leading-6 text-gray-900">
-                Message
+                Mesazhi
               </label>
               <textarea
                 id="message"
@@ -60,7 +97,7 @@ export default function Contact() {
               type="submit"
               className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              Send message
+              Dergo Mesazhin
             </button>
           </form>
         </div>
