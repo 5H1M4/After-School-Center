@@ -17,33 +17,16 @@ export default function RegistrationModal({ isOpen, closeModal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('=== Starting Registration Submission ===');
-    console.log('Form data:', formData);
-
-    if (!formData.name || !formData.email || !formData.program) {
-      console.error('Missing required fields:', formData);
-      alert('Ju lutem plotësoni të gjitha fushat e kërkuara');
-      return;
-    }
-
     try {
-      const apiUrl = process.env.NODE_ENV === 'production'
-        ? 'https://qenderpasshkolleameli.vercel.app/api/register'
-        : 'http://localhost:3001/api/register';
-
-      console.log('Sending request to:', apiUrl);
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
-        credentials: 'include'
+        body: JSON.stringify(formData)
       });
 
-      console.log('Response status:', response.status);
       const responseData = await response.json();
-      console.log('Response data:', responseData);
 
       if (response.ok) {
         alert('Regjistrimi u krye me sukses! Kontrolloni emailin tuaj për konfirmim.');
