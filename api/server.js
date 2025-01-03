@@ -11,13 +11,10 @@ const app = express();
 
 // Enhanced CORS configuration
 const corsOptions = {
-  origin: (origin, callback) => {
-    const allowedOrigins = ['https://qenderpasshkolleameli.vercel.app', 'http://localhost:3000'];
-    console.log('Request origin:', origin);
-    callback(null, allowedOrigins.includes(origin) || !origin);
-  },
+  origin: ['https://qenderpasshkolleameli.vercel.app', 'http://localhost:3000'],
   methods: ['POST', 'GET'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
@@ -98,6 +95,15 @@ app.post('/api/register', async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
+});
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 export default app; 
