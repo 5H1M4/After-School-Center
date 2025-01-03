@@ -10,41 +10,39 @@ console.log('SENDGRID_API_KEY exists:', !!process.env.SENDGRID_API_KEY);
 
 const app = express();
 
+// Logging middleware
 app.use((req, res, next) => {
-  console.log('Request received:', {
-    method: req.method,
-    path: req.path,
-    headers: req.headers,
-    body: req.body
-  });
+  console.log(`${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
   next();
 });
 
 app.use(cors());
 app.use(express.json());
 
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-if (!SENDGRID_API_KEY) {
-  console.error('Warning: SENDGRID_API_KEY is not set');
-}
-sgMail.setApiKey(SENDGRID_API_KEY);
-
-app.post('/api/register', async (req, res) => {
-  console.log('Registration endpoint hit');
-  console.log('Request body:', req.body);
-  
+// Separate handler function for better error handling
+const handleRegistration = async (req, res) => {
   try {
+    console.log('Registration request body:', req.body);
     const { name, email, program } = req.body;
-    console.log('Extracted data:', { name, email, program });
-    
+
     if (!name || !email || !program) {
-      console.log('Missing required fields:', { name, email, program });
-      return res.status(400).json({ 
-        message: 'Të gjitha fushat janë të detyrueshme' 
+      console.log('Validation failed:', { name, email, program });
+      return res.status(400).json({
+        success: false,
+        message: 'Të gjitha fushat janë të detyrueshme'
       });
     }
 
-    console.log('Preparing to send confirmation email');
+    // Verify SendGrid configuration
+    if (!process.env.SENDGRID_API_KEY) {
+      console.error('SendGrid API key is missing');
+      return res.status(500).json({
+        success: false,
+        message: 'Email service configuration error'
+      });
+    }
+
     const msg = {
       to: email,
       from: 'dailydrivejaguar@gmail.com',
@@ -57,36 +55,44 @@ app.post('/api/register', async (req, res) => {
       `
     };
 
-    try {
-      console.log('Sending confirmation email...');
-      await sgMail.send(msg);
-      console.log('Confirmation email sent successfully');
-    } catch (emailError) {
-      console.error('Email sending error:', emailError);
-      console.error('SendGrid response:', emailError.response?.body);
-      throw emailError;
-    }
+    console.log('Attempting to send email:', msg);
+    await sgMail.send(msg);
+    console.log('Email sent successfully');
 
-    res.status(200).json({ message: 'Regjistrimi u krye me sukses' });
+    return res.status(200).json({
+      success: true,
+      message: 'Regjistrimi u krye me sukses'
+    });
   } catch (error) {
-    console.error('Registration error:', {
+    console.error('Registration error:', error);
+    console.error('Error details:', {
       name: error.name,
       message: error.message,
       stack: error.stack,
       response: error.response?.body
     });
-    
-    res.status(500).json({ 
-      message: 'Regjistrimi dështoi',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+
+    return res.status(500).json({
+      success: false,
+      message: 'Regjistrimi dështoi. Ju lutemi provoni përsëri.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+};
+
+// Registration endpoint
+app.post('/api/register', handleRegistration);
+
+// Test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working' });
 });
 
-// Error handling middleware
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error('Global error handler:', err);
+  console.error('Unhandled error:', err);
   res.status(500).json({
+    success: false,
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
