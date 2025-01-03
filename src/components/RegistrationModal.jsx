@@ -22,14 +22,14 @@ export default function RegistrationModal({ isOpen, closeModal }) {
 
     if (!formData.name || !formData.email || !formData.program) {
       console.error('Missing required fields:', formData);
-      alert('Please fill in all required fields');
+      alert('Ju lutem plotësoni të gjitha fushat e kërkuara');
       return;
     }
 
     try {
-      const apiUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:3001/api/register'
-        : '/api/register';
+      const apiUrl = process.env.NODE_ENV === 'production'
+        ? 'https://qenderpasshkolleameli.vercel.app/api/register'
+        : 'http://localhost:3001/api/register';
 
       console.log('Sending request to:', apiUrl);
       const response = await fetch(apiUrl, {
@@ -38,6 +38,7 @@ export default function RegistrationModal({ isOpen, closeModal }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        credentials: 'include'
       });
 
       console.log('Response status:', response.status);
@@ -45,16 +46,15 @@ export default function RegistrationModal({ isOpen, closeModal }) {
       console.log('Response data:', responseData);
 
       if (response.ok) {
-        console.log('Registration successful');
-        alert('Registration successful! Check your email for confirmation.');
+        alert('Regjistrimi u krye me sukses! Kontrolloni emailin tuaj për konfirmim.');
         closeModal();
         setFormData({ name: '', email: '', program: '' });
       } else {
-        throw new Error(responseData.message || 'Registration failed');
+        throw new Error(responseData.message || 'Regjistrimi dështoi');
       }
     } catch (error) {
       console.error('Registration error:', error);
-      alert(error.message || 'Connection error. Please try again.');
+      alert('Gabim në lidhje. Ju lutemi provoni përsëri.');
     }
   };
 
