@@ -20,12 +20,7 @@ export default function RegistrationModal({ isOpen, closeModal }) {
     console.log('Starting registration submission:', formData);
     
     try {
-      const apiUrl = process.env.NODE_ENV === 'production'
-        ? 'https://qenderpasshkolleameli.vercel.app/api/register'
-        : '/api/register';
-
-      console.log('Attempting to send request to:', apiUrl);
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
