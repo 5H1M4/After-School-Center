@@ -16,7 +16,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/server.js"
+      "dest": "api/server.js"
     },
     {
       "handle": "filesystem"
@@ -25,9 +25,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "SENDGRID_API_KEY": "@sendgrid_api_key",
-    "NODE_ENV": "production"
-  }
+  ]
 } 

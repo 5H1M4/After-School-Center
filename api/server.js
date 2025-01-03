@@ -25,12 +25,6 @@ app.post('/api/register', async (req, res) => {
   try {
     const { name, email, program } = req.body;
     
-    if (!name || !email || !program) {
-      return res.status(400).json({ 
-        message: 'Të gjitha fushat janë të detyrueshme' 
-      });
-    }
-
     const msg = {
       to: email,
       from: 'dailydrivejaguar@gmail.com',
@@ -67,35 +61,6 @@ app.post('/api/register', async (req, res) => {
     res.status(500).json({ 
       message: 'Regjistrimi dështoi',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Gabim i brendshëm'
-    });
-  }
-});
-
-// Contact form endpoint
-app.post('/api/send-email', async (req, res) => {
-  try {
-    const { name, email, message } = req.body;
-    
-    const msg = {
-      to: 'endy.shima@gmail.com',
-      from: 'dailydrivejaguar@gmail.com',
-      subject: `New Contact Form Message from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
-      html: `
-        <h3>New Contact Form Submission</h3>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `
-    };
-
-    await sgMail.send(msg);
-    res.status(200).json({ message: 'Email sent successfully' });
-  } catch (error) {
-    console.error('Email error:', error);
-    res.status(500).json({ 
-      message: 'Failed to send email',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
