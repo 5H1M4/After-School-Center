@@ -17,29 +17,45 @@ export default function RegistrationModal({ isOpen, closeModal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Starting registration submission:', formData);
+    console.log('Form Data:', formData);
+    console.log('Environment:', process.env.NODE_ENV);
     
     try {
-      const response = await fetch('/api/register', {
+      const apiUrl = '/api/register';
+      console.log('Sending request to:', apiUrl);
+      
+      const requestOptions = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData)
-      });
+      };
+      console.log('Request options:', requestOptions);
+
+      console.log('Initiating fetch request...');
+      const response = await fetch(apiUrl, requestOptions);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers));
 
       const responseData = await response.json();
       console.log('Response data:', responseData);
 
       if (response.ok) {
+        console.log('Registration successful');
         alert('Regjistrimi u krye me sukses! Kontrolloni emailin tuaj për konfirmim.');
         closeModal();
         setFormData({ name: '', email: '', program: '' });
       } else {
+        console.error('Server returned error:', responseData);
         throw new Error(responseData.message || 'Regjistrimi dështoi');
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Detailed error:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       alert('Gabim në lidhje. Ju lutemi provoni përsëri.');
     }
   };
